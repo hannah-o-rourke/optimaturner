@@ -34,12 +34,12 @@
 
   2. reply — Respond to Comments
 
-  - Checks replies on Vote Uncovered's own comments daily
+  - Checks replies on the comments posted by itself (Refer to list of facebook pages CSV)
   - Responds in a helpful, cheery tone
   - Answers questions about where/when to vote using wheredoivote.co.uk
   - Stays on-topic: redirects off-topic replies gracefully
 
-  3. post — Own Page Content
+  1. post — Own Page Content
 
   - Posts daily content to the Vote Uncovered page
   - Content: upcoming local elections in the UK, sourced from whocanivotefor.co.uk
