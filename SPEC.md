@@ -34,7 +34,7 @@
 
   2. reply — Respond to Comments
 
-  - Checks replies on the comments posted by itself (Refer to list of facebook pages CSV)
+  - Checks replies on the comments posted by itself (Refer to list of facebook pages CSV)gs
   - Responds in a helpful, cheery tone
   - Answers questions about where/when to vote using wheredoivote.co.uk
   - Stays on-topic: redirects off-topic replies gracefully
@@ -72,8 +72,8 @@
   ---
   Action log (monitoring & review)
 
-  Every action the OpenClaw agent and supporting scripts take must be written to an append-only log file under `logs/` (for example `logs/actions.log`) so
-  anyone can review what happened without using the Facebook UI alone.
+  Every action the OpenClaw agent and supporting scripts take must be written to append-only log files in this repository under `./logs/` (for example
+  `./logs/actions.log`) so anyone can review what happened without using the Facebook UI alone.
 
   The log must be detailed enough for audit and trust: timestamp, which capability ran (sync-elections, monitor, post, reply), and stable identifiers from
   the Graph API where available (post id, comment id, page id).
@@ -132,6 +132,7 @@
   | .env           | FB_PAGE_ACCESS_TOKEN, FB_PAGE_ID                    |
   | Cron job       | 0 9 * * * /path/to/run.sh — runs daily at 9am       |
   | Python 3 + deps | For the scripts                                    |
+  | Repo logs dir  | `./logs/` writable; OpenClaw writes `actions.log` and `run.log` here |
 
   Hostinger VPS spec: their cheapest plan (KVM 1, ~£4/mo) would comfortably run this — it is all lightweight API calls, no heavy compute needed.
 
