@@ -91,32 +91,66 @@
   Auth: Long-lived Page Access Token for Vote Uncovered page, stored in .env
 
   ---
+  Hosting: Hostinger VPS + OpenClaw
+
+  What a Hostinger VPS + OpenClaw gives you
+
+  - Runs the daily sync → monitor → post → reply pipeline on a cron schedule, 24/7
+  - No dependency on your laptop being on
+  - Claude API calls happen server-side
+  - Logs persist in one place
+  - Easy to add more agents or projects later (you already have politech-awards and sugaroverflow running locally)
+
+  What you need on the VPS
+
+  | Component      | Detail                                              |
+  |----------------|-----------------------------------------------------|
+  | OpenClaw       | Installed and configured with your Claude API key |
+  | This repo      | Cloned from GitHub                                  |
+  | .env           | FB_PAGE_ACCESS_TOKEN, FB_PAGE_ID                    |
+  | Cron job       | 0 9 * * * /path/to/run.sh — runs daily at 9am       |
+  | Python 3 + deps | For the scripts                                    |
+
+  Hostinger VPS spec: their cheapest plan (KVM 1, ~£4/mo) would comfortably run this — it is all lightweight API calls, no heavy compute needed.
+
+  One thing to sort first: the Facebook Developer App review. If you are making API calls from a server rather than interactively, you need a long-lived Page Access Token (valid 60 days, renewable) stored in .env on the VPS.
+
+  Stack (confirmed)
+
+  - Hostinger VPS — hosting + cron
+  - GitHub repo — source of truth
+  - OpenClaw — agent runtime
+  - Claude API — the brain
+
+  ---
   Project Structure
 
-  voteuncovered-agent/
-  ├── .claude/
-  │   └── agents/
-  │       ├── monitor-agent.md       # Watches pages, posts comments
-  │       ├── reply-agent.md         # Handles replies
-  │       └── post-agent.md          # Generates own-page content
-  ├── scripts/
-  │   ├── monitor.py                 # Poll pages, comment on relevant posts
-  │   ├── reply.py                   # Check and respond to replies
-  │   ├── post.py                    # Post to own page
-  │   ├── sync_elections.py          # Fetch election data
-  │   ├── graph_api.py               # Facebook Graph API wrapper
-  │   ├── election_data.py           # wheredoivote / whocanivotefor fetchers
-  │   └── run.sh                     # Daily entrypoint: sync → monitor → post → reply
-  ├── config/
-  │   └── pages.txt                  # Curated list of page IDs to monitor
-  ├── data/
-  │   └── elections.json             # Cached election data (gitignored)
-  │   └── commented.json             # Log of posts already commented on
-  ├── logs/
-  │   └── run.log
-  ├── .env.example                   # FB_PAGE_ID, FB_PAGE_ACCESS_TOKEN
-  ├── .gitignore
-  └── README.md
+```text
+voteuncovered-agent/
+├── .claude/
+│   └── agents/
+│       ├── monitor-agent.md       # Watches pages, posts comments
+│       ├── reply-agent.md         # Handles replies
+│       └── post-agent.md          # Generates own-page content
+├── scripts/
+│   ├── monitor.py                 # Poll pages, comment on relevant posts
+│   ├── reply.py                   # Check and respond to replies
+│   ├── post.py                    # Post to own page
+│   ├── sync_elections.py          # Fetch election data
+│   ├── graph_api.py               # Facebook Graph API wrapper
+│   ├── election_data.py           # wheredoivote / whocanivotefor fetchers
+│   └── run.sh                     # Daily entrypoint: sync → monitor → post → reply
+├── config/
+│   └── pages.txt                  # Curated list of page IDs to monitor
+├── data/
+│   ├── elections.json             # Cached election data (gitignored)
+│   └── commented.json             # Log of posts already commented on
+├── logs/
+│   └── run.log
+├── .env.example                   # FB_PAGE_ID, FB_PAGE_ACCESS_TOKEN
+├── .gitignore
+└── README.md
+```
 
   ---
   Comment Examples
