@@ -70,6 +70,28 @@
   | Post-election cool-down | Pause comments for that area after election day passes           |
 
   ---
+  Action log (monitoring & review)
+
+  Every action the OpenClaw agent and supporting scripts take must be written to an append-only log file under `logs/` (for example `logs/actions.log`) so
+  anyone can review what happened without using the Facebook UI alone.
+
+  The log must be detailed enough for audit and trust: timestamp, which capability ran (sync-elections, monitor, post, reply), and stable identifiers from
+  the Graph API where available (post id, comment id, page id).
+
+  Required content
+
+  - Outbound actions — Full verbatim text for every comment the agent posts on other pages, every reply the agent sends, and every post published to the
+    Vote Uncovered page; include enough context to find the thread (parent post snippet or permalink if available).
+  - Thread follow-up — When someone replies to the agent's comment, log each incoming reply (author display name and message text as returned by the API)
+    and each agent response in turn, so the conversation under the agent's comment is reconstructible from the file alone.
+  - Other actions — Record sync-elections outcomes (counts or file hash), intentional skips (no election, guardrail hit, already commented), and errors with
+    enough detail to debug.
+
+  `run.sh` may keep a separate `logs/run.log` for cron output and stack traces, but the action log is the human-first record of behaviour on Facebook.
+
+  Log files should be gitignored (or only aggregated samples committed); on the VPS they persist with the repo for ongoing review.
+
+  ---
   Guardrails (hard limits)
 
   - Never mention specific candidates or parties
@@ -98,7 +120,7 @@
   - Runs the daily sync → monitor → post → reply pipeline on a cron schedule, 24/7
   - No dependency on your laptop being on
   - Claude API calls happen server-side
-  - Logs persist in one place
+  - Logs persist in one place, including the append-only action audit (every agent action, comment text, and replies to the agent's comments — see Action log)
   - Easy to add more agents or projects later (you already have politech-awards and sugaroverflow running locally)
 
   What you need on the VPS
@@ -146,7 +168,8 @@ voteuncovered-agent/
 │   ├── elections.json             # Cached election data (gitignored)
 │   └── commented.json             # Log of posts already commented on
 ├── logs/
-│   └── run.log
+│   ├── run.log                      # Cron / script stdout, errors (optional)
+│   └── actions.log                  # Append-only audit: every action, full comment/reply text, thread responses
 ├── .env.example                   # FB_PAGE_ID, FB_PAGE_ACCESS_TOKEN
 ├── .gitignore
 └── README.md
