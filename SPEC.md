@@ -12,19 +12,13 @@
   ---
   Agent Identity
 
-  ┌─────────┬────────────────────────────────────────────────────┐
-  │  Field  │                       Value                        │
-  ├─────────┼────────────────────────────────────────────────────┤
-  │ Page    │ facebook.com/voteuncovered                         │
-  ├─────────┼────────────────────────────────────────────────────┤
-  │ Org     │ Campaign Lab                                       │
-  ├─────────┼────────────────────────────────────────────────────┤
-  │ Mission │ Non-partisan voter turnout and civic participation │
-  ├─────────┼────────────────────────────────────────────────────┤
-  │ Tone    │ Cheery, helpful, encouraging                       │
-  ├─────────┼────────────────────────────────────────────────────┤
-  │ Scope   │ UK local elections only                            │
-  └─────────┴────────────────────────────────────────────────────┘
+  | Field   | Value                                                |
+  |---------|------------------------------------------------------|
+  | Page    | facebook.com/voteuncovered                           |
+  | Org     | Campaign Lab                                         |
+  | Mission | Non-partisan voter turnout and civic participation |
+  | Tone    | Cheery, helpful, encouraging                           |
+  | Scope   | UK local elections only                              |
 
   ---
   Capabilities
@@ -60,28 +54,20 @@
   ---
   Data Sources
 
-  ┌────────────────────┬──────────────────────┬────────────────────────────────────────┐
-  │       Source       │         URL          │                Used for                │
-  ├────────────────────┼──────────────────────┼────────────────────────────────────────┤
-  │ Where Do I Vote    │ wheredoivote.co.uk   │ Polling station info for replies       │
-  ├────────────────────┼──────────────────────┼────────────────────────────────────────┤
-  │ Who Can I Vote For │ whocanivotefor.co.uk │ Upcoming elections by area             │
-  ├────────────────────┼──────────────────────┼────────────────────────────────────────┤
-  │ Curated pages list │ config/pages.txt     │ Pages to monitor (maintained manually) │
-  └────────────────────┴──────────────────────┴────────────────────────────────────────┘
+  | Source               | URL                  | Used for                                 |
+  |----------------------|----------------------|------------------------------------------|
+  | Where Do I Vote      | wheredoivote.co.uk   | Polling station info for replies         |
+  | Who Can I Vote For   | whocanivotefor.co.uk | Upcoming elections by area               |
+  | Curated pages list   | config/pages.txt     | Pages to monitor (maintained manually)   |
 
   ---
   Scheduling
 
-  ┌─────────────────────────┬────────────────────────────────────────────────────────────────┐
-  │         Trigger         │                             Action                             │
-  ├─────────────────────────┼────────────────────────────────────────────────────────────────┤
-  │ Daily                   │ sync-elections → monitor → post → reply                        │
-  ├─────────────────────────┼────────────────────────────────────────────────────────────────┤
-  │ Pre-election ramp-up    │ Increase comment frequency in final 2 weeks before an election │
-  ├─────────────────────────┼────────────────────────────────────────────────────────────────┤
-  │ Post-election cool-down │ Pause comments for that area after election day passes         │
-  └─────────────────────────┴────────────────────────────────────────────────────────────────┘
+  | Trigger                 | Action                                                           |
+  |-------------------------|------------------------------------------------------------------|
+  | Daily                   | sync-elections → monitor → post → reply                          |
+  | Pre-election ramp-up    | Increase comment frequency in final 2 weeks before an election |
+  | Post-election cool-down | Pause comments for that area after election day passes           |
 
   ---
   Guardrails (hard limits)
@@ -96,15 +82,11 @@
   ---
   Facebook Graph API
 
-  ┌─────────────────────────┬────────────────────────────────────────────┐
-  │       Permission        │                  Purpose                   │
-  ├─────────────────────────┼────────────────────────────────────────────┤
-  │ pages_manage_posts      │ Post to Vote Uncovered page                │
-  ├─────────────────────────┼────────────────────────────────────────────┤
-  │ pages_manage_engagement │ Comment on other pages, reply to comments  │
-  ├─────────────────────────┼────────────────────────────────────────────┤
-  │ pages_read_engagement   │ Read posts and comments on monitored pages │
-  └─────────────────────────┴────────────────────────────────────────────┘
+  | Permission              | Purpose                                      |
+  |-------------------------|----------------------------------------------|
+  | pages_manage_posts      | Post to Vote Uncovered page                  |
+  | pages_manage_engagement | Comment on other pages, reply to comments    |
+  | pages_read_engagement   | Read posts and comments on monitored pages   |
 
   Auth: Long-lived Page Access Token for Vote Uncovered page, stored in .env
 
