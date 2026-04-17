@@ -50,23 +50,23 @@ def human_delay(minimum: float = MIN_DELAY, maximum: float = MAX_DELAY):
 def _dismiss_cookie_dialog(page: Page):
     """Dismiss Facebook cookie/consent dialogs if present."""
     selectors = [
+        '[role="button"]:has-text("Allow all cookies")',
+        '[role="button"]:has-text("Accept all")',
         'button[data-cookiebanner="accept_button"]',
         'button[title="Allow all cookies"]',
-        'button[title="Accept All"]',
         'button:has-text("Allow all cookies")',
         'button:has-text("Accept all")',
-        'button:has-text("Allow essential and optional cookies")',
         '[aria-label="Allow all cookies"]',
-        '[aria-label="Accept all"]',
     ]
     for sel in selectors:
         try:
-            btn = page.locator(sel).first
-            if btn.is_visible(timeout=2000):
-                btn.click()
-                log_action("browser", "Dismissed cookie consent dialog")
-                human_delay(1, 2)
-                return
+            els = page.locator(sel).all()
+            for btn in els:
+                if btn.is_visible(timeout=2000):
+                    btn.click()
+                    log_action("browser", "Dismissed cookie consent dialog")
+                    human_delay(2, 4)
+                    return
         except Exception:
             continue
 
@@ -78,6 +78,8 @@ def _dismiss_popups(page: Page):
         '[aria-label="Decline optional cookies"]',
         'div[role="dialog"] button:has-text("Not Now")',
         'div[role="dialog"] button:has-text("Not now")',
+        'div[role="dialog"] [role="button"]:has-text("Not now")',
+        'div[role="dialog"] [role="button"]:has-text("OK")',
         'div[role="dialog"] [aria-label="Close"]',
     ]
     for sel in dismiss_selectors:
@@ -163,19 +165,18 @@ def login_to_facebook(page: Page) -> bool:
 
     # Fill login form
     try:
-        email_input = page.locator('#email, [name="email"], input[type="email"]').first
+        email_input = page.locator('input[name="email"]').first
         email_input.fill(FB_EMAIL)
         human_delay(0.5, 1.5)
 
-        pass_input = page.locator('#pass, [name="pass"], input[type="password"]').first
+        pass_input = page.locator('input[name="pass"]').first
         pass_input.fill(FB_PASSWORD)
         human_delay(0.5, 1.0)
 
-        # Click login button
+        # Click login button (Facebook uses role=button divs)
         login_btn = page.locator(
-            'button[name="login"], button[data-testid="royal_login_button"], '
-            'button[type="submit"], input[type="submit"][value="Log in"], '
-            'input[type="submit"][value="Log In"]'
+            '[role="button"]:has-text("Log in"), '
+            'button[name="login"], button[type="submit"]'
         ).first
         login_btn.click()
 
