@@ -17,6 +17,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from browser_automation import (
     create_browser_context, login_to_facebook, navigate_to_page,
     read_page_posts, save_browser_state, cleanup, human_delay,
+    _nuke_overlays, _dispatch_click,
     FB_PAGE_ID,
 )
 from reply import (
@@ -112,15 +113,19 @@ def reply_to_comment(page, reply_text: str, response: str) -> bool:
             'div[contenteditable="true"]',
         ]
 
+        _nuke_overlays(page)
+
         for sel in reply_box_selectors:
             try:
                 box = page.locator(sel).last
                 if box.is_visible(timeout=3000):
                     box.click()
                     human_delay(0.5, 1)
-                    box.fill(response)
+                    # Use press_sequentially for Facebook's Lexical editor
+                    box.press_sequentially(response, delay=30)
                     human_delay(1, 2)
-                    page.keyboard.press("Enter")
+                    # Submit via JS dispatch (React ignores synthetic clicks)
+                    _dispatch_click(page, '[aria-label="Post comment"]')
                     human_delay(2, 4)
                     return True
             except Exception:

@@ -47,16 +47,47 @@ def human_delay(minimum: float = MIN_DELAY, maximum: float = MAX_DELAY):
     time.sleep(random.uniform(minimum, maximum))
 
 
+def _nuke_overlays(page: Page):
+    """Remove all Facebook dialog overlays via JS. Call before ANY interaction."""
+    try:
+        page.evaluate('() => document.querySelectorAll("div[role=dialog]").forEach(e=>e.remove())')
+    except Exception:
+        pass
+
+
+def _dispatch_click(page: Page, selector: str) -> bool:
+    """Dispatch real mouse events via JS — works around React's synthetic event issues.
+
+    Returns True if the element was found and events dispatched.
+    """
+    return page.evaluate("""(sel) => {
+        const btn = document.querySelector(sel);
+        if (btn) {
+            const rect = btn.getBoundingClientRect();
+            const events = ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click'];
+            events.forEach(type => {
+                btn.dispatchEvent(new MouseEvent(type, {
+                    bubbles: true, cancelable: true,
+                    clientX: rect.x + 5, clientY: rect.y + 5
+                }));
+            });
+            return true;
+        }
+        return false;
+    }""", selector)
+
+
 def _dismiss_cookie_dialog(page: Page):
-    """Dismiss Facebook cookie/consent dialogs if present."""
+    """Dismiss Facebook cookie/consent dialogs if present.
+
+    Cookie consent buttons are [role="button"] divs, NOT <button> elements.
+    """
     selectors = [
         '[role="button"]:has-text("Allow all cookies")',
         '[role="button"]:has-text("Accept all")',
+        '[role="button"]:has-text("Allow essential and optional cookies")',
         'button[data-cookiebanner="accept_button"]',
         'button[title="Allow all cookies"]',
-        'button:has-text("Allow all cookies")',
-        'button:has-text("Accept all")',
-        '[aria-label="Allow all cookies"]',
     ]
     for sel in selectors:
         try:
@@ -72,12 +103,17 @@ def _dismiss_cookie_dialog(page: Page):
 
 
 def _dismiss_popups(page: Page):
-    """Dismiss various Facebook popups (notifications, login prompts, etc.)."""
+    """Dismiss various Facebook popups (notifications, login prompts, etc.).
+
+    Also nukes all dialog overlays via JS — critical for preventing blocked clicks.
+    """
+    # First, nuke all dialog overlays via JS
+    _nuke_overlays(page)
+
     dismiss_selectors = [
         '[aria-label="Close"]',
         '[aria-label="Decline optional cookies"]',
-        'div[role="dialog"] button:has-text("Not Now")',
-        'div[role="dialog"] button:has-text("Not now")',
+        'div[role="dialog"] [role="button"]:has-text("Not Now")',
         'div[role="dialog"] [role="button"]:has-text("Not now")',
         'div[role="dialog"] [role="button"]:has-text("OK")',
         'div[role="dialog"] [aria-label="Close"]',
@@ -163,7 +199,7 @@ def login_to_facebook(page: Page) -> bool:
         log_action("browser", "Already logged in (session restored)")
         return True
 
-    # Fill login form
+    # Fill login form — use input[name=] selectors (IDs are dynamic)
     try:
         email_input = page.locator('input[name="email"]').first
         email_input.fill(FB_EMAIL)
@@ -173,12 +209,8 @@ def login_to_facebook(page: Page) -> bool:
         pass_input.fill(FB_PASSWORD)
         human_delay(0.5, 1.0)
 
-        # Click login button (Facebook uses role=button divs)
-        login_btn = page.locator(
-            '[role="button"]:has-text("Log in"), '
-            'button[name="login"], button[type="submit"]'
-        ).first
-        login_btn.click()
+        # Click login button — Facebook uses [role="button"] divs, not <button>
+        page.locator('[role="button"]:has-text("Log in")').first.click()
 
         log_action("browser", "Submitted login form")
         human_delay(4, 7)
@@ -216,6 +248,30 @@ def _is_logged_in(page: Page) -> bool:
             continue
     # Also check URL — logged-in users don't stay on login page
     return "/login" not in page.url and "facebook.com" in page.url and page.url != "https://www.facebook.com/"
+
+
+def switch_to_page_profile(page: Page) -> bool:
+    """Switch to operating as Vote Uncovered page profile (not personal account).
+
+    Should be called after navigating to the VU page.
+    Returns True if switch was successful or already switched.
+    """
+    try:
+        switch_btn = page.locator('text="Switch Now"')
+        if switch_btn.is_visible(timeout=3000):
+            switch_btn.click()
+            human_delay(2, 4)
+            # Wait for confirmation
+            try:
+                page.locator('text=/Switched to Vote Uncovered/').wait_for(timeout=5000)
+                log_action("browser", "Switched to Vote Uncovered page profile")
+            except Exception:
+                pass
+            _dismiss_popups(page)
+            return True
+    except Exception:
+        pass
+    return False
 
 
 def navigate_to_page(page: Page, page_id: str) -> bool:
@@ -302,11 +358,14 @@ def comment_on_post(page: Page, post_index: int, comment_text: str) -> bool:
             post.locator('div[role="button"]:has-text("Comment")').first,
         ]
 
+        # Nuke overlays before clicking comment button
+        _nuke_overlays(page)
+
         clicked = False
         for trigger in comment_triggers:
             try:
                 if trigger.is_visible(timeout=3000):
-                    trigger.click()
+                    trigger.click(force=True)  # force=True to bypass overlay intercepts
                     clicked = True
                     human_delay(1, 2)
                     break
@@ -318,6 +377,8 @@ def comment_on_post(page: Page, post_index: int, comment_text: str) -> bool:
             return False
 
         # Type the comment into the comment box
+        # Use press_sequentially() — only this triggers proper input events
+        # for Facebook's Lexical editor (NOT fill() or keyboard.type())
         comment_box_selectors = [
             'div[role="textbox"][aria-label*="comment" i]',
             'div[role="textbox"][aria-label*="Comment" i]',
@@ -333,7 +394,7 @@ def comment_on_post(page: Page, post_index: int, comment_text: str) -> bool:
                 if box.is_visible(timeout=3000):
                     box.click()
                     human_delay(0.5, 1)
-                    box.fill(comment_text)
+                    box.press_sequentially(comment_text, delay=30)
                     human_delay(1, 2)
                     typed = True
                     break
@@ -344,8 +405,10 @@ def comment_on_post(page: Page, post_index: int, comment_text: str) -> bool:
             log_action("browser", f"Could not find comment box for post {post_index}")
             return False
 
-        # Submit — press Enter
-        page.keyboard.press("Enter")
+        # Submit — dispatch real mouse events on the Post comment button.
+        # Playwright's click() doesn't trigger Facebook's React handlers.
+        human_delay(0.5, 1)
+        _dispatch_click(page, '[aria-label="Post comment"]')
         human_delay(2, 4)
 
         log_action(
@@ -419,12 +482,14 @@ def post_to_own_page(page: Page, content: str) -> bool:
     human_delay(2, 4)
 
     try:
+        _nuke_overlays(page)
+
         # Click on the "Create post" or "What's on your mind" area
         create_post_selectors = [
             '[aria-label="Create a post"]',
-            'div[role="button"]:has-text("What\'s on your mind")',
-            'div[role="button"]:has-text("Create a post")',
-            'div[role="button"]:has-text("Write something")',
+            '[role="button"]:has-text("What\'s on your mind")',
+            '[role="button"]:has-text("Create a post")',
+            '[role="button"]:has-text("Write something")',
             'span:has-text("What\'s on your mind")',
         ]
 
@@ -433,7 +498,7 @@ def post_to_own_page(page: Page, content: str) -> bool:
             try:
                 el = page.locator(sel).first
                 if el.is_visible(timeout=3000):
-                    el.click()
+                    el.click(force=True)
                     clicked = True
                     human_delay(2, 3)
                     break
@@ -447,7 +512,7 @@ def post_to_own_page(page: Page, content: str) -> bool:
         # Wait for the post composition dialog
         human_delay(2, 3)
 
-        # Type into the post composition area
+        # Type into the post composition area using press_sequentially
         post_box_selectors = [
             'div[role="dialog"] div[role="textbox"]',
             'div[role="textbox"][aria-label*="on your mind"]',
@@ -463,8 +528,7 @@ def post_to_own_page(page: Page, content: str) -> bool:
                 if box.is_visible(timeout=5000):
                     box.click()
                     human_delay(0.5, 1)
-                    # Type slowly for longer content
-                    box.fill(content)
+                    box.press_sequentially(content, delay=15)
                     human_delay(1, 2)
                     typed = True
                     break
@@ -475,24 +539,29 @@ def post_to_own_page(page: Page, content: str) -> bool:
             log_action("browser", "Could not find post composition textbox")
             return False
 
-        # Click the Post button
-        post_btn_selectors = [
-            'div[role="dialog"] div[role="button"][aria-label="Post"]',
-            'div[role="dialog"] button:has-text("Post")',
-            'div[role="button"][aria-label="Post"]',
-            'button:has-text("Post")',
-        ]
+        # Click the Post button using JS dispatch for reliability
+        human_delay(1, 2)
+        submitted = _dispatch_click(page, '[aria-label="Post"]')
+        if not submitted:
+            # Fallback to Playwright click
+            post_btn_selectors = [
+                'div[role="dialog"] [role="button"][aria-label="Post"]',
+                '[role="button"]:has-text("Post")',
+            ]
+            for sel in post_btn_selectors:
+                try:
+                    btn = page.locator(sel).first
+                    if btn.is_visible(timeout=3000):
+                        btn.click(force=True)
+                        submitted = True
+                        break
+                except Exception:
+                    continue
 
-        for sel in post_btn_selectors:
-            try:
-                btn = page.locator(sel).first
-                if btn.is_visible(timeout=3000):
-                    btn.click()
-                    human_delay(3, 5)
-                    log_action("browser", "Published post to own page", post_text=content[:200])
-                    return True
-            except Exception:
-                continue
+        if submitted:
+            human_delay(3, 5)
+            log_action("browser", "Published post to own page", post_text=content[:200])
+            return True
 
         log_action("browser", "Could not find Post submit button")
         return False

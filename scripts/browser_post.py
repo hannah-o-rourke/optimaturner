@@ -17,7 +17,8 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from browser_automation import (
     create_browser_context, login_to_facebook, post_to_own_page,
-    save_browser_state, cleanup,
+    save_browser_state, cleanup, switch_to_page_profile,
+    _nuke_overlays,
 )
 from post import (
     load_elections, generate_post_content, days_until_election,
@@ -73,6 +74,9 @@ def browser_post_daily(headless: bool = True, dry_run: bool = False):
             return
 
         save_browser_state(context)
+
+        # Switch to page profile before posting
+        switch_to_page_profile(page)
 
         success = post_to_own_page(page, content)
 

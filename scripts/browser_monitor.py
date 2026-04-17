@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from browser_automation import (
     create_browser_context, login_to_facebook, navigate_to_page,
     read_page_posts, comment_on_post, save_browser_state, cleanup,
-    human_delay,
+    human_delay, _nuke_overlays, _dispatch_click,
 )
 from monitor import (
     LOCAL_ISSUE_KEYWORDS, SKIP_KEYWORDS, COMMENT_TEMPLATES,
