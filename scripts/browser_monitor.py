@@ -28,6 +28,7 @@ from monitor import (
     is_local_issue, extract_page_id_from_url, load_pages, has_elections,
 )
 from action_logger import log_action
+from comment_logger import log_comment
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
@@ -137,6 +138,13 @@ def browser_monitor(headless: bool = True, max_pages: int = 0, dry_run: bool = F
                         post_key=post_key,
                         post_snippet=post_text[:120],
                         comment_text=comment_text,
+                    )
+                    log_comment(
+                        page_name=outlet,
+                        page_url=f"https://www.facebook.com/{page_id}",
+                        comment_text=comment_text,
+                        post_url="",
+                        comment_url="",
                     )
                 else:
                     log_action("browser-monitor", f"Failed to comment on post by {outlet}")

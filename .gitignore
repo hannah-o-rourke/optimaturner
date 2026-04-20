@@ -1,6 +1,7 @@
 .env
 data/
 logs/
+!logs/comments.csv
 __pycache__/
 *.pyc
 .venv/

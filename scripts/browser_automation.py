@@ -26,6 +26,7 @@ from playwright.sync_api import sync_playwright, Page, BrowserContext, TimeoutEr
 
 sys.path.insert(0, os.path.dirname(__file__))
 from action_logger import log_action
+from comment_logger import log_comment
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
@@ -416,6 +417,11 @@ def comment_on_post(page: Page, post_index: int, comment_text: str) -> bool:
             f"Posted comment on post index {post_index}",
             comment_text=comment_text,
         )
+        log_comment(
+            page_name=page.url.split("/")[-1] or page.url,
+            page_url=page.url,
+            comment_text=comment_text,
+        )
         return True
 
     except Exception as e:
@@ -561,6 +567,13 @@ def post_to_own_page(page: Page, content: str) -> bool:
         if submitted:
             human_delay(3, 5)
             log_action("browser", "Published post to own page", post_text=content[:200])
+            log_comment(
+                page_name="Vote Uncovered",
+                page_url=page.url,
+                comment_text=content,
+                post_url="",
+                comment_url="",
+            )
             return True
 
         log_action("browser", "Could not find Post submit button")

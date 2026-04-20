@@ -24,6 +24,7 @@ from post import (
     load_elections, generate_post_content, days_until_election,
 )
 from action_logger import log_action
+from comment_logger import log_comment
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
@@ -94,6 +95,13 @@ def browser_post_daily(headless: bool = True, dry_run: bool = False):
                 "browser-post",
                 "Published daily post to Vote Uncovered page via browser",
                 post_text=content[:200],
+            )
+            log_comment(
+                page_name="Vote Uncovered",
+                page_url=f"https://www.facebook.com/{os.getenv('FB_PAGE_ID', 'voteuncovered')}",
+                comment_text=content,
+                post_url="",
+                comment_url="",
             )
             print("Posted to page successfully!")
         else:
