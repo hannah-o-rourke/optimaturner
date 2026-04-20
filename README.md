@@ -74,4 +74,14 @@ bash scripts/run.sh
 
 ## Audit
 
-All actions are logged to `logs/actions.log` with full text of every comment, reply, and post. See [SPEC.md](SPEC.md) for details.
+All actions are logged to:
+- `logs/comments.csv` — Every comment posted, with timestamps, page name, post URL, and full text ([view on GitHub](logs/comments.csv))
+- `logs/actions.log` — Detailed action log with capability tags
+
+See [SPEC.md](SPEC.md) for details.
+
+## Status
+
+✅ **Pilot live** (20 April 2026) — First successful external page comment posted on Bristol Post via browser automation.
+
+10 approved news pages across England, Wales, and Scotland. Comments posted as Dominic O'Cratic with permission from page administrators.
