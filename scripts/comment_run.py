@@ -297,6 +297,7 @@ def main(max_comments=5, dry_run=False):
     
     # Save browser state
     ctx.storage_state(path=str(PROJECT_ROOT / 'data' / 'dominic_state.json'))
+    ctx.storage_state(path=str(PROJECT_ROOT / 'data' / 'browser_state.json'))  # backup
     
     print(f'\n{"="*60}')
     print(f'Done! Posted {comments_posted} comments.')
