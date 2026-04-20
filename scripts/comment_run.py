@@ -54,67 +54,69 @@ def is_relevant(text):
     return any(kw in lower for kw in LOCAL_ISSUE_KEYWORDS)
 
 def get_election_type(page_name):
+    """Returns (election_name, verb_form) — e.g. ('the Senedd election', 'is') or ('local council elections', 'are')"""
     if any(w in page_name for w in WELSH_PAGES):
-        return "the Senedd election"
+        return "the Senedd election", "is"
     if any(s in page_name for s in SCOTTISH_PAGES):
-        return "the Scottish Parliament election"
-    return "local council elections"
+        return "the Scottish Parliament election", "is"
+    return "local council elections", "are"
 
 def craft_comment(post_text, page_name):
     """Generate a natural, contextual comment based on the post content."""
-    election = get_election_type(page_name)
+    election, verb = get_election_type(page_name)
+    E = election[0].upper() + election[1:]  # Capitalised
     lower = post_text.lower()
     
     # Match the comment to the topic
     if any(w in lower for w in ["road", "pothole", "traffic", "transport", "bus", "parking", "cycling"]):
         templates = [
-            f"Roads and transport are decided by your local council. {election.capitalize()} are on May 7th — if this matters to you, that's your chance to have a say. whocanivotefor.co.uk",
-            f"This is the kind of thing your local councillors are responsible for. {election.capitalize()} are coming up on May 7th — worth checking who's standing in your area at whocanivotefor.co.uk",
+            f"Roads and transport are decided by your local council. {E} {verb} on May 7th — if this matters to you, that's your chance to have a say. whocanivotefor.co.uk",
+            f"This is the kind of thing your local councillors are responsible for. {E} {verb} coming up on May 7th — worth checking who's standing in your area at whocanivotefor.co.uk",
             f"Transport issues like this are exactly what gets decided at the local level. With {election} on May 7th, you get to choose who sorts this out. whocanivotefor.co.uk",
         ]
     elif any(w in lower for w in ["housing", "rent", "tenant", "eviction", "homeless", "homelessness", "traveller"]):
         templates = [
-            f"Housing is one of the biggest issues local councils deal with. {election.capitalize()} are on May 7th — your vote shapes how this is handled. whocanivotefor.co.uk",
+            f"Housing is one of the biggest issues local councils deal with. {E} {verb} on May 7th — your vote shapes how this is handled. whocanivotefor.co.uk",
             f"These kinds of housing decisions are made at the local level. With {election} on May 7th, it's worth making your voice heard. whocanivotefor.co.uk",
-            f"Local housing policy matters and it's decided by the people you elect. {election.capitalize()} are on May 7th — check who's standing at whocanivotefor.co.uk",
+            f"Local housing policy matters and it's decided by the people you elect. {E} {verb} on May 7th — check who's standing at whocanivotefor.co.uk",
         ]
     elif any(w in lower for w in ["bin", "rubbish", "waste", "recycling", "litter"]):
         templates = [
-            f"Bins and waste collection — classic local council territory! {election.capitalize()} are on May 7th, and these are exactly the issues your councillors handle. whocanivotefor.co.uk",
-            f"If this winds you up, it's worth knowing your local council is responsible for it. {election.capitalize()} are on May 7th — have your say at whocanivotefor.co.uk",
+            f"Bins and waste collection — classic local council territory! {E} {verb} on May 7th, and these are exactly the issues your councillors handle. whocanivotefor.co.uk",
+            f"If this winds you up, it's worth knowing your local council is responsible for it. {E} {verb} on May 7th — have your say at whocanivotefor.co.uk",
         ]
     elif any(w in lower for w in ["police", "crime", "antisocial", "anti-social"]):
         templates = [
-            f"Community safety is something local representatives can actually influence. {election.capitalize()} are on May 7th — a few minutes of your time could help shape what happens next. whocanivotefor.co.uk",
-            f"Issues like this are why local elections matter. {election.capitalize()} are on May 7th — check who's standing in your area and what they'd do about it. whocanivotefor.co.uk",
+            f"Community safety is something local representatives can actually influence. {E} {verb} on May 7th — a few minutes of your time could help shape what happens next. whocanivotefor.co.uk",
+            f"Issues like this are why local elections matter. {E} {verb} on May 7th — check who's standing in your area and what they'd do about it. whocanivotefor.co.uk",
         ]
     elif any(w in lower for w in ["council", "councillor", "council tax", "budget", "funding"]):
         templates = [
-            f"This is exactly what {election} on May 7th are about. Your vote decides who makes these calls. Worth a look at whocanivotefor.co.uk to see who's standing.",
+            f"This is exactly what {election} on May 7th {verb} about. Your vote decides who makes these calls. Worth a look at whocanivotefor.co.uk to see who's standing.",
             f"Council decisions affect everyone — and on May 7th you get to decide who's making them. Check who's standing in your area: whocanivotefor.co.uk",
         ]
     elif any(w in lower for w in ["park", "green space", "playground", "leisure", "library", "community"]):
         templates = [
-            f"Local spaces like this are managed by your council. {election.capitalize()} are on May 7th — if you care about your community, it's worth having your say. whocanivotefor.co.uk",
+            f"Local spaces like this are managed by your council. {E} {verb} on May 7th — if you care about your community, it's worth having your say. whocanivotefor.co.uk",
             f"These are the things your local councillors look after. With {election} on May 7th, you get a say in who does it. whocanivotefor.co.uk",
         ]
     elif any(w in lower for w in ["school", "education"]):
         templates = [
-            f"Education and local schools are shaped by decisions at the local level. {election.capitalize()} are on May 7th — your vote matters more than you think. whocanivotefor.co.uk",
+            f"Education and local schools are shaped by decisions at the local level. {E} {verb} on May 7th — your vote matters more than you think. whocanivotefor.co.uk",
         ]
     elif any(w in lower for w in ["planning", "development", "regeneration", "building"]):
         templates = [
-            f"Planning decisions like this are made by your local council. {election.capitalize()} are on May 7th — it's your chance to pick who makes these choices. whocanivotefor.co.uk",
-            f"If you've got opinions on local development, {election} on May 7th are your chance to be heard. See who's standing: whocanivotefor.co.uk",
+            f"Planning decisions like this are made by your local council. {E} {verb} on May 7th — it's your chance to pick who makes these choices. whocanivotefor.co.uk",
+            f"If you've got opinions on local development, {election} on May 7th {verb} your chance to be heard. See who's standing: whocanivotefor.co.uk",
         ]
     elif any(w in lower for w in ["flood", "environment", "pollution", "air quality"]):
         templates = [
-            f"Environmental issues like this often come down to local decision-making. {election.capitalize()} are on May 7th — have your say on who handles it. whocanivotefor.co.uk",
+            f"Environmental issues like this often come down to local decision-making. {E} {verb} on May 7th — have your say on who handles it. whocanivotefor.co.uk",
         ]
     else:
         templates = [
-            f"Local issues like this are decided by the people you elect. {election.capitalize()} are on May 7th — takes a couple of minutes to check who's standing in your area at whocanivotefor.co.uk",
-            f"This is the kind of thing that gets sorted (or not!) at the local level. {election.capitalize()} are coming up on May 7th. whocanivotefor.co.uk",
+            f"Local issues like this are decided by the people you elect. {E} {verb} on May 7th — takes a couple of minutes to check who's standing in your area at whocanivotefor.co.uk",
+            f"This is the kind of thing that gets sorted (or not!) at the local level. {E} {verb} coming up on May 7th. whocanivotefor.co.uk",
         ]
     
     return random.choice(templates)
