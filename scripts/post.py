@@ -25,7 +25,7 @@ POSTED_FILE = DATA_DIR / "posted.json"
 
 # Days before election to start ramping up
 RAMP_UP_DAYS = 14
-ELECTION_DATE = date(2026, 5, 5)
+ELECTION_DATE = date(2026, 5, 7)
 
 
 def load_elections() -> dict:
@@ -58,7 +58,7 @@ def generate_post_content(elections: dict) -> str:
     ballots = elections.get("ballots", [])
     areas = set()
     for b in ballots[:50]:
-        # ballot_paper_id like 'local.sheffield.beauchief-and-greenhill.2026-05-05'
+        # ballot_paper_id like 'local.sheffield.beauchief-and-greenhill.2026-05-07'
         parts = b.get("ballot_paper_id", "").split(".")
         if len(parts) >= 2:
             area = parts[1].replace("-", " ").title()
@@ -77,7 +77,9 @@ def generate_post_content(elections: dict) -> str:
     if days_left == 1:
         return (
             "🗳️ TOMORROW is polling day!\n\n"
-            "Local elections are happening across the UK tomorrow, Thursday May 5th. "
+            "Elections are happening across the UK tomorrow, Thursday May 7th! "
+            "Local council elections in England, the Senedd election in Wales, "
+            "and the Scottish Parliament election in Scotland. "
             "Polls open at 7am and close at 10pm.\n\n"
             "✅ Find your polling station: wheredoivote.co.uk\n"
             "✅ See who's standing: whocanivotefor.co.uk\n"
@@ -90,9 +92,9 @@ def generate_post_content(elections: dict) -> str:
     if days_left <= 7:
         return (
             f"🗳️ Just {days_left} days until local elections!\n\n"
-            f"On Thursday May 5th, voters across the UK will choose their local councillors. "
-            f"That's the people who decide on planning, housing, roads, schools, and so much more "
-            f"in your area.\n\n"
+            f"On Thursday May 7th, voters across the UK head to the polls! "
+            f"England has local council elections, Wales votes for the Senedd, "
+            f"and Scotland votes for the Scottish Parliament.\n\n"
             + (f"Elections are happening in areas including {', '.join(area_sample)} and many more.\n\n" if area_sample else "")
             + "✅ Check who's standing in your area: whocanivotefor.co.uk\n"
             "✅ Find your polling station: wheredoivote.co.uk\n"
@@ -105,7 +107,7 @@ def generate_post_content(elections: dict) -> str:
         templates = [
             (
                 f"🗳️ Local elections are {days_left} days away!\n\n"
-                f"There are {num_ballots}+ local elections happening across the UK on May 5th. "
+                f"There are {num_ballots}+ elections happening across the UK on May 7th. "
                 "These elections decide who runs your local council — the people in charge of "
                 "everything from bin collections to housing decisions.\n\n"
                 + (f"Areas voting include: {', '.join(area_sample)}\n\n" if area_sample else "")
@@ -121,7 +123,7 @@ def generate_post_content(elections: dict) -> str:
                 "🗑️ Waste and recycling\n"
                 "🌳 Parks and green spaces\n"
                 "📚 Libraries and community services\n\n"
-                "Local elections are on May 5th. Make sure you're ready to vote!\n"
+                "Elections are on May 7th. Make sure you're ready to vote!\n"
                 "whocanivotefor.co.uk 🗳️\n\n"
                 "#LocalElections #VoteLocal"
             ),
@@ -131,10 +133,10 @@ def generate_post_content(elections: dict) -> str:
     # Standard daily post (more than 2 weeks out)
     templates = [
         (
-            "🗳️ Local elections are coming to the UK on May 5th 2026!\n\n"
-            f"There are {num_ballots}+ council seats being contested across the country. "
-            "Your local council makes decisions that affect your everyday life — "
-            "from potholes to parks, housing to high streets.\n\n"
+            "🗳️ Elections are coming to the UK on May 7th 2026!\n\n"
+            f"There are {num_ballots}+ seats being contested across the country — "
+            "local council elections in England, the Senedd in Wales, "
+            "and the Scottish Parliament in Scotland.\n\n"
             "Want to know if there's an election in your area? "
             "Check whocanivotefor.co.uk\n\n"
             "#LocalElections #VoteLocal #YourVoiceMatters"
@@ -142,7 +144,7 @@ def generate_post_content(elections: dict) -> str:
         (
             "🏘️ Ever wondered who decides what happens on your street?\n\n"
             "Your local councillors! And you get to pick them in the upcoming "
-            "local elections on May 5th.\n\n"
+            "elections on May 7th.\n\n"
             "Find out who's standing in your area: whocanivotefor.co.uk\n"
             "Make sure you're registered: gov.uk/register-to-vote\n\n"
             "🗳️ Your vote, your community, your choice.\n\n"

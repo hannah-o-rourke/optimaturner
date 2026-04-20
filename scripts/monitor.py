@@ -21,6 +21,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from graph_api import get_page_posts, post_comment, GraphAPIError
 from action_logger import log_action
+from region import get_region, election_type_for_region, election_label_for_outlet
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 CONFIG_DIR = PROJECT_ROOT / "config"
@@ -51,35 +52,43 @@ SKIP_KEYWORDS = [
 ]
 
 # ── Comment templates ───────────────────────────────────────────────────
+# These are template strings with a {election_desc} placeholder that gets
+# filled based on the page's region (England/Wales/Scotland).
 COMMENT_TEMPLATES = [
     (
-        "Did you know there's a local election coming up in your area? "
-        "Your vote really does make a difference at the local level — "
-        "from your bin collections to your local parks. "
-        "Find out more at whocanivotefor.co.uk 🗳️"
+        "Did you know {election_desc} are coming up in your area? "
+        "Your vote really does make a difference — "
+        "find out more at whocanivotefor.co.uk 🗳️"
     ),
     (
-        "Local elections are just around the corner! It only takes a few "
+        "Elections are just around the corner! It only takes a few "
         "minutes to have your say on the issues that matter most in your "
         "community. Check if you're registered at gov.uk/register-to-vote 🗳️"
     ),
     (
-        "Issues like this are exactly what local elections are about! "
+        "Issues like this are exactly what elections are about! "
         "If you want to have a say on how things like this are handled, "
-        "make sure you're registered to vote. Local elections are on "
-        "May 5th — find out who's standing at whocanivotefor.co.uk 🗳️"
+        "make sure you're registered to vote. Polling day is "
+        "May 7th — find out who's standing at whocanivotefor.co.uk 🗳️"
     ),
     (
-        "This is the kind of thing your local councillors deal with every day. "
-        "Local elections are coming up — it's your chance to pick who represents you. "
+        "This is the kind of thing your elected representatives deal with every day. "
+        "With {election_desc} coming up on May 7th, it's your chance to pick who represents you. "
         "More info: whocanivotefor.co.uk 🗳️"
     ),
     (
-        "Your local councillors make decisions on issues just like this. "
-        "With local elections on May 5th, now's the time to make your voice heard! "
+        "Your elected representatives make decisions on issues just like this. "
+        "With {election_desc} on May 7th, now's the time to make your voice heard! "
         "Register to vote at gov.uk/register-to-vote 🗳️"
     ),
 ]
+
+
+def get_comment_for_outlet(outlet: str) -> str:
+    """Pick a random comment template and fill in the region-appropriate election type."""
+    template = random.choice(COMMENT_TEMPLATES)
+    election_desc = election_label_for_outlet(outlet)
+    return template.format(election_desc=election_desc)
 
 
 def load_commented() -> dict:
@@ -178,8 +187,8 @@ def monitor():
             if not is_local_issue(message):
                 continue
 
-            # Pick a comment
-            comment_text = random.choice(COMMENT_TEMPLATES)
+            # Pick a region-aware comment
+            comment_text = get_comment_for_outlet(page["outlet"])
 
             try:
                 result = post_comment(post_id, comment_text)

@@ -4,7 +4,7 @@
 
 An autonomous agent that monitors community Facebook pages, identifies posts about local issues, and comments to remind residents about upcoming local elections. Also publishes daily content to the [Vote Uncovered Facebook page](https://facebook.com/voteuncovered).
 
-Built for [Campaign Lab](https://www.campaignlab.uk/). Target: **UK local elections, May 5 2026**.
+Built for [Campaign Lab](https://www.campaignlab.uk/). Target: **UK elections, 7 May 2026** — local council elections in England (5,014 seats across 136 councils), the Senedd election in Wales (96 seats), and the Scottish Parliament election in Scotland (129 seats).
 
 ## How It Works
 

@@ -31,7 +31,7 @@ HELPFUL_REPLIES = {
         "and when it's open. 🗳️"
     ),
     "when": (
-        "Local elections are on Thursday, May 5th 2026! Polling stations are "
+        "Elections are on Thursday, May 7th 2026! Polling stations are "
         "open from 7am to 10pm. You can find yours at wheredoivote.co.uk 🗳️"
     ),
     "register": (

@@ -29,7 +29,7 @@ def get_elections_for_postcode(postcode: str) -> dict:
 def get_candidates_for_ballot(ballot_paper_id: str) -> dict:
     """Fetch candidates for a specific ballot paper ID.
 
-    Example ballot_paper_id: 'local.sheffield.beauchief-and-greenhill.2026-05-05'
+    Example ballot_paper_id: 'local.sheffield.beauchief-and-greenhill.2026-05-07'
     """
     url = f"{WCIVF_BASE}/api/candidates_for_ballots/"
     params = {"ballot_paper_id": ballot_paper_id}

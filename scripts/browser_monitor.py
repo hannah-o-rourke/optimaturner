@@ -26,6 +26,7 @@ from browser_automation import (
 from monitor import (
     LOCAL_ISSUE_KEYWORDS, SKIP_KEYWORDS, COMMENT_TEMPLATES,
     is_local_issue, extract_page_id_from_url, load_pages, has_elections,
+    get_comment_for_outlet,
 )
 from action_logger import log_action
 from comment_logger import log_comment
@@ -107,8 +108,8 @@ def browser_monitor(headless: bool = True, max_pages: int = 0, dry_run: bool = F
                 if not is_local_issue(post_text):
                     continue
 
-                # Pick a comment
-                comment_text = random.choice(COMMENT_TEMPLATES)
+                # Pick a region-aware comment
+                comment_text = get_comment_for_outlet(outlet)
 
                 if dry_run:
                     log_action(
