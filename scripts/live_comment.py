@@ -108,12 +108,28 @@ def main(max_comments=8):
                 const links = container ? container.querySelectorAll('a[role="link"]') : [];
                 const pageNames = Array.from(links).map(l => l.textContent).filter(t => t.length > 3 && t.length < 50);
                 const postLinks = container ? container.querySelectorAll('a[href*="pfbid"], a[href*="/posts/"], a[href*="/reel/"]') : [];
+                // Also check timestamp links and any other links that might contain post URLs
+                const allLinks = container ? container.querySelectorAll('a[href]') : [];
+                let postUrl = '';
+                if (postLinks.length > 0) {
+                    postUrl = postLinks[0].href;
+                } else {
+                    for (const link of allLinks) {
+                        const h = link.href || '';
+                        if (h.includes('pfbid') || h.includes('/posts/') || h.includes('/reel/') || 
+                            (h.includes('facebook.com/') && h.includes('/photos/')) ||
+                            (h.includes('facebook.com/') && h.includes('story_fbid'))) {
+                            postUrl = h;
+                            break;
+                        }
+                    }
+                }
                 const rect = btn.getBoundingClientRect();
                 return {
                     idx: idx,
                     texts: texts.slice(0, 5).map(t => t.substring(0, 500)),
                     pageNames: pageNames.slice(0, 5),
-                    postUrl: postLinks.length > 0 ? postLinks[0].href : '',
+                    postUrl: postUrl,
                     y: rect.y,
                     visible: rect.y > 0 && rect.y < 900
                 };
@@ -195,7 +211,18 @@ def main(max_comments=8):
                 dispatch_click(page, '[aria-label="Post comment"]')
                 time.sleep(random.randint(4, 8))
 
-                post_url = post.get('postUrl', '') or 'home_feed'
+                # Try to grab post URL from the modal/page after clicking
+                post_url = post.get('postUrl', '')
+                if not post_url:
+                    post_url = page.evaluate('''() => {
+                        const links = document.querySelectorAll('a[href*="pfbid"], a[href*="/posts/"], a[href*="comment_id"]');
+                        for (const l of links) {
+                            if (l.href && (l.href.includes('pfbid') || l.href.includes('/posts/'))) return l.href;
+                        }
+                        // Try the URL bar if we navigated
+                        if (window.location.href.includes('pfbid') || window.location.href.includes('/posts/')) return window.location.href;
+                        return '';
+                    }''') or 'home_feed'
                 log_comment(page_name, post_url, comment_text)
                 commented.add(post_key)
                 comments_posted += 1
