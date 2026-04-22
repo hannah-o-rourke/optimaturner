@@ -181,17 +181,46 @@ def main(max_comments=8):
             if line.startswith("COMMENT:"):
                 comment_text = line[8:].strip()
 
-                # Scroll button into view
-                page.evaluate(f'''() => {{
-                    const btns = document.querySelectorAll('[aria-label="Leave a comment"]');
-                    if (btns[{post['idx']}]) btns[{post['idx']}].scrollIntoView({{block:"center"}});
-                }}''')
+                # Find the correct post by matching text content, then click ITS comment button
+                # This avoids button index drift when Facebook loads new content
+                target_snippet = post_text[:60].replace("'", "\\'")
+                clicked = page.evaluate(f'''(snippet) => {{
+                    const buttons = document.querySelectorAll('[aria-label="Leave a comment"]');
+                    for (const btn of buttons) {{
+                        let container = btn;
+                        for (let i = 0; i < 15; i++) {{ container = container.parentElement; if (!container) break; }}
+                        if (container && container.innerText.includes(snippet)) {{
+                            btn.scrollIntoView({{block: "center"}});
+                            return true;
+                        }}
+                    }}
+                    return false;
+                }}''', target_snippet)
+                
+                if not clicked:
+                    print("RESULT:POST_NOT_FOUND", flush=True)
+                    continue
+                
                 time.sleep(2)
-
-                btn = page.locator('[aria-label="Leave a comment"]').nth(post['idx'])
-                try:
-                    btn.click(timeout=10000)
-                except:
+                
+                # Now find and click the button that's near this text
+                btn_clicked = page.evaluate(f'''(snippet) => {{
+                    const buttons = document.querySelectorAll('[aria-label="Leave a comment"]');
+                    for (const btn of buttons) {{
+                        let container = btn;
+                        for (let i = 0; i < 15; i++) {{ container = container.parentElement; if (!container) break; }}
+                        if (container && container.innerText.includes(snippet)) {{
+                            const r = btn.getBoundingClientRect();
+                            ['pointerdown','mousedown','pointerup','mouseup','click'].forEach(t => {{
+                                btn.dispatchEvent(new MouseEvent(t, {{bubbles:true,cancelable:true,clientX:r.x+5,clientY:r.y+5}}));
+                            }});
+                            return true;
+                        }}
+                    }}
+                    return false;
+                }}''', target_snippet)
+                
+                if not btn_clicked:
                     print("RESULT:CLICK_FAILED", flush=True)
                     continue
 
