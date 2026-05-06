@@ -97,7 +97,7 @@ Facebook's automated systems detected the account within approximately **4 days 
 | Date range | 20 April – 6 May 2026 |
 | Countries/devolved nations | England, Wales, Scotland |
 | Accounts used | 2 (one suspended) |
-| Cost of operation | ~£5/month server costs |
+| Cost of operation | ~£627–£805 total (see Cost section below) |
 | Development time | ~3 weeks (part-time) |
 
 ### Most Targeted Pages
@@ -149,6 +149,78 @@ Our implementation used all of these capabilities in a non-partisan way. A parti
 
 ### 6. Traceability is limited
 Facebook does not provide public data on how many automated accounts are operating, what they're posting, or how many people have seen their content. The only transparency in this project exists because we built our own audit trail — there is no platform-mandated equivalent.
+
+---
+
+## Comment Analysis
+
+All 127 comments were contextual and unique — written in response to the specific story, not templated. Below is a breakdown by topic, tone and geography.
+
+### Topics Covered
+
+| Topic | Comments |
+|-------|----------|
+| Housing, planning & regeneration | 8 |
+| Roads, potholes & road safety | 8 |
+| Transport & parking | 5 |
+| Waste, recycling & fly-tipping | 3 |
+| Schools & education | 2 |
+| Libraries & community facilities | 2 |
+| High streets & local economy | 2 |
+| Parks, leisure & green spaces | 1 |
+| Election/voting focus | 2 |
+| Other hyperlocal issues | ~94 |
+
+The "Other hyperlocal" category includes topics such as RAAC in school buildings, social care cuts, affordable homes, community sports centres, speed limits near villages, council regeneration projects, scrutiny committee decisions, and neighbourhood boards.
+
+### Geographic Coverage
+
+| Nation | Comments | Election targeted |
+|--------|----------|-------------------|
+| England | 85 (67%) | Local council elections |
+| Wales | 23 (18%) | Senedd election |
+| Scotland | 19 (15%) | Scottish Parliament election |
+
+### Comment Structure & Tone
+
+All comments followed a consistent but non-templated structure:
+1. **Acknowledge the specific story** — reference what the article is actually about
+2. **Connect it to local democracy** — explain which level of government is responsible
+3. **Call to action** — mention the election date and link to whocanivotefor.co.uk
+
+Example (on a story about a school with no place for a 5-year-old):
+> *"Every child deserves a school place — a 5-year-old left without schooling is a failure of the system, and local councils have a statutory duty to provide education for all children. SEND and school placements are a huge issue. Local elections on May 7th, worth asking candidates how they'd tackle it: whocanivotefor.co.uk"*
+
+Example (on a fly-tipping story in Wales):
+> *"Fly-tipping like this is infuriating — someone always ends up paying to clean it up, usually the council. The Senedd election is on May 7th and waste management is one of the things your vote directly affects. Worth checking who's standing in your area: whocanivotefor.co.uk"*
+
+### What the Comments Were NOT
+- Not partisan — no mention of any party or candidate
+- Not templated — each one responds to the specific story
+- Not generic voter registration messaging — always tied to a local issue
+- Not placed on inappropriate content — we skipped crime, death, court cases, national politics
+
+### What This Demonstrates
+An automated system can produce contextually appropriate, human-sounding political content at scale. A partisan actor using the same approach could replace the neutral call-to-action with targeted party messaging, and readers would have no way to distinguish it from a genuine constituent's comment.
+
+---
+
+## Cost
+
+| Item | Cost |
+|------|------|
+| Server (cloud hosting, ~3 weeks) | ~£5 |
+| Claude API (AI model for comment generation and judgement) | £621.63 – £800 |
+| **Total** | **~£627 – £805** |
+
+The dominant cost was the AI API. This covered:
+- Evaluating every post for relevance before commenting
+- Writing unique, contextual comments for each story
+- Iterative development and testing throughout the project
+
+**Important context:** AI API costs are falling rapidly. The same project run today with a cheaper model could cost significantly less. A well-resourced operation could also fine-tune a smaller model on example comments, reducing per-comment API costs to near zero after an upfront training investment.
+
+The server cost (~£5/month) is negligible. The main cost in this project was the AI intelligence layer — but that cost is not a meaningful barrier for a political campaign, foreign actor, or commercial operator.
 
 ---
 
