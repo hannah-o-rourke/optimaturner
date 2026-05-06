@@ -1,0 +1,9 @@
+[2026-04-17 18:08:47 UTC] [browser] Navigating to Facebook login
+
+[2026-04-17 18:09:22 UTC] [browser] ERROR during login: Locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("button[name=\"login\"], button[data-testid=\"royal_login_button\"], button[type=\"submit\"], input[type=\"submit\"][value=\"Log in\"], input[type=\"submit\"][value=\"Log In\"]").first
+
+
+[2026-04-17 18:09:22 UTC] [browser] Saved browser state to data/browser_state.json
+

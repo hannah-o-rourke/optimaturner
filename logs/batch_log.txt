@@ -1,0 +1,2 @@
+[2026-04-21T14:52:08+00:00] Afternoon batch skipped: 16 posts scraped, only 3 suitable (litter picking, mayoral reform, Welsh NHS/Senedd), but all 16 had empty post_url — scraper failed to extract Facebook post links from feed. Cannot comment without URLs.
+2026-04-22T14:53:08Z | AFTERNOON_BATCH | 0 comments | Facebook checkpoint block - account requires human verification
